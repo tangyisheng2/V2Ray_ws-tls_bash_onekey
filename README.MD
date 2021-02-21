@@ -1,4 +1,7 @@
-## Xray 基于 Nginx 的 VLESS + xtls 一键安装脚本
+
+## Xray 基于 Nginx 的 VLESS + XTLS 一键安装脚本 <img src="https://raw.githubusercontent.com/wulabing/Xray_onekey/xray/image/project_xray.jpg" alt="Project_Xray" width="122" height="30" align="bottom" />
+
+
 > 感谢 JetBrains 提供的非商业开源软件开发授权！
 
 > Thanks for non-commercial open source development authorization by JetBrains!
@@ -12,10 +15,10 @@
 * 安装好 wget。
 
 ### 安装/更新方式（Xray）
-VLESS + xtls + nginx + Web
+VLESS + XTLS + nginx + Web
 
 ```
-wget -N --no-check-certificate -q -O install.sh "https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/xray/install.sh" && chmod +x install.sh && bash install.sh
+wget -N --no-check-certificate -q -O install.sh "https://raw.githubusercontent.com/wulabing/Xray_onekey/xray/install.sh" && chmod +x install.sh && bash install.sh
 ```
 
 ### 注意事项
@@ -26,6 +29,7 @@ wget -N --no-check-certificate -q -O install.sh "https://raw.githubusercontent.c
 
 ### 鸣谢
 
+* 本脚本中 README Project_Xray 项目图片由 Blitzcrank Telegram:@Blitz_crank 提供 在此感谢Blitzcrank
 * 本脚本中 MTProxyTLS 基于 https://github.com/sunpma/mtp 二次修改 在此感谢 sunpma；
 * 本脚本中 锐速 4 合 1 脚本原项目引用 https://www.94ish.me/1635.html 在此感谢；
 * 本脚本中 锐速 4 合 1 脚本修改版项目引用 https://github.com/ylx2016/Linux-NetSpeed 在此感谢 ylx2016；

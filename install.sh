@@ -16,6 +16,7 @@ cd "$(
 Green="\033[32m"
 Red="\033[31m"
 Yellow="\033[33m"
+Blue="\033[36m"
 Font="\033[0m"
 GreenBG="\033[42;37m"
 RedBG="\033[41;37m"
@@ -23,7 +24,7 @@ OK="${Green}[OK]${Font}"
 ERROR="${Red}[ERROR]${Font}"
 
 # 变量
-shell_version="1.0.6"
+shell_version="1.0.13"
 github_branch="xray"
 version_cmp="/tmp/version_cmp.tmp"
 xray_conf_dir="/usr/local/etc/xray"
@@ -37,7 +38,7 @@ cert_group="nobody"
 VERSION=$(echo "${VERSION}" | awk -F "[()]" '{print $2}')
 
 function print_ok() {
-  echo -e "${OK} ${GreenBG} $1 ${Font}"
+  echo -e "${OK} ${Blue} $1 ${Font}"
 }
 
 function print_error() {
@@ -69,7 +70,7 @@ function system_check() {
   if [[ "${ID}" == "centos" && ${VERSION_ID} -ge 7 ]]; then
     print_ok "当前系统为 Centos ${VERSION_ID} ${VERSION}"
     INS="yum install -y"
-    wget -N -P /etc/yum.repos.d/ https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/xray/basic/nginx.repo
+    wget -N -P /etc/yum.repos.d/ https://raw.githubusercontent.com/wulabing/Xray_onekey/xray/basic/nginx.repo
   elif [[ "${ID}" == "debian" && ${VERSION_ID} -ge 9 ]]; then
     print_ok "当前系统为 Debian ${VERSION_ID} ${VERSION}"
     INS="apt install -y"
@@ -167,7 +168,7 @@ function dependency_install() {
   ${INS} jq
 
   if ! command -v jq; then
-    wget -P /usr/bin https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/xray/binary/jq && chmod +x /usr/bin/jq
+    wget -P /usr/bin https://raw.githubusercontent.com/wulabing/Xray_onekey/xray/binary/jq && chmod +x /usr/bin/jq
     judge "安装 jq"
   fi
 }
@@ -227,23 +228,23 @@ function port_exist_check() {
   fi
 }
 function update_sh() {
-  ol_version=$(curl -L -s https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/${github_branch}/install.sh | grep "shell_version=" | head -1 | awk -F '=|"' '{print $3}')
+  ol_version=$(curl -L -s https://raw.githubusercontent.com/wulabing/Xray_onekey/${github_branch}/install.sh | grep "shell_version=" | head -1 | awk -F '=|"' '{print $3}')
   echo "$ol_version" >$version_cmp
   echo "$shell_version" >>$version_cmp
-  if [[ "$shell_version" < "$(sort -rV $version_cmp | head -1)" ]]; then
-    echo -e "${OK} ${GreenBG} 存在新版本，是否更新 [Y/N]? ${Font}"
+  if [[ "$shell_version" != "$(sort -rV $version_cmp | head -1)" ]]; then
+    print_ok "存在新版本，是否更新 [Y/N]?"
     read -r update_confirm
     case $update_confirm in
     [yY][eE][sS] | [yY])
-      wget -N --no-check-certificate https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/${github_branch}/install.sh
-      echo -e "${OK} ${GreenBG} 更新完成 ${Font}"
+      wget -N --no-check-certificate https://raw.githubusercontent.com/wulabing/Xray_onekey/${github_branch}/install.sh
+      print_ok "更新完成"
       exit 0
       ;;
     *) ;;
 
     esac
   else
-    echo -e "${OK} ${GreenBG} 当前版本为最新版本 ${Font}"
+    print_ok "当前版本为最新版本"
   fi
 }
 
@@ -270,7 +271,7 @@ function modify_tls_version() {
 
 function configure_nginx() {
   nginx_conf="/etc/nginx/conf.d/${domain}.conf"
-  cd /etc/nginx/conf.d/ && rm -f ${domain}.conf && wget -O ${domain}.conf https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/xray/config/web.conf
+  cd /etc/nginx/conf.d/ && rm -f ${domain}.conf && wget -O ${domain}.conf https://raw.githubusercontent.com/wulabing/Xray_onekey/xray/config/web.conf
   sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
   judge "Nginx config modify"
 
@@ -307,7 +308,7 @@ function modify_port() {
 }
 
 function configure_xray() {
-  cd /usr/local/etc/xray && rm -f config.json && wget -O config.json https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/xray/config/xray_xtls-rprx-direct.json
+  cd /usr/local/etc/xray && rm -f config.json && wget -O config.json https://raw.githubusercontent.com/wulabing/Xray_onekey/xray/config/xray_xtls-rprx-direct.json
   modify_UUID
   modify_port
   tls_type
@@ -365,12 +366,12 @@ function ssl_judge_and_install() {
   mkdir -p /ssl
   if [[ -f "/ssl/xray.key" || -f "/ssl/xray.crt" ]]; then
     echo "/ssl 目录下证书文件已存在"
-    echo -e "${OK} ${GreenBG} 是否删除 [Y/N]? ${Font}"
+    print_ok "是否删除 [Y/N]?"
     read -r ssl_delete
     case $ssl_delete in
     [yY][eE][sS] | [yY])
       rm -rf /ssl/*
-      echo -e "${OK} ${GreenBG} 已删除 ${Font}"
+      print_ok "已删除"
       ;;
     *) ;;
 
@@ -524,7 +525,8 @@ menu() {
   echo -e "${Green}31.${Font} 安装 4 合 1 BBR、锐速安装脚本"
   echo -e "${Green}32.${Font} 安装 MTproxy（支持 TLS 混淆）"
   echo -e "${Green}33.${Font} 卸载 Xray"
-
+  echo -e "${Green}34.${Font} 更新 Xray-core"
+  echo -e "${Green}40.${Font} 退出"
   read -rp "请输入数字：" menu_num
   case $menu_num in
   0)
@@ -563,6 +565,13 @@ menu() {
     ;;
   33)
     xray_uninstall
+    ;;
+  34)
+    curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh | bash -s -- install
+    restart_all
+    ;;
+  40)
+    exit 0
     ;;
   *)
     print_error "请输入正确的数字"
